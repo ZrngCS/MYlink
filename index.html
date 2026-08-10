@@ -821,6 +821,42 @@
                 opacity: 1;
             }
         }
+        /* Mobile Performance Optimizations (Prevents heating & lag) */
+        
+        @media (max-width: 768px) {
+            /* Disable heavy SVG noise grain */
+            body::after {
+                display: none;
+            }
+            /* Disable interactive cursor glow */
+            #cursor-glow {
+                display: none;
+            }
+            /* Disable backdrop blur (glassmorphism) to save GPU */
+            .link-card {
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                background: rgba(255, 255, 255, 0.06) !important;
+                /* Slightly more opaque to compensate */
+            }
+            .cmd-overlay {
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                background: rgba(8, 10, 12, 0.95) !important;
+            }
+            /* Disable background blob animations to save CPU */
+            .bg-blob {
+                animation: none !important;
+            }
+            .blob-3 {
+                display: none;
+            }
+            /* Hide one blob completely to save rendering */
+            /* Disable profile image floating animation */
+            .profile-img-container {
+                animation: none !important;
+            }
+        }
         /* Accessibility: Reduced Motion */
         
         @media (prefers-reduced-motion: reduce) {
@@ -903,7 +939,7 @@
 
         <!-- Semantic nav for links -->
         <nav class="links" aria-label="Social and website links">
-            <a href="https://myweb05.netlify.app/" target="_blank" rel="noopener noreferrer" class="link-card website" style="--i: 0;" data-en="Zzone.Tech Website" data-ckb="ماڵپەڕی ز زۆن تەکنەلۆجیا">
+            <a href="https://myweb05.netlify.app/" target="_blank" rel="noopener noreferrer" class="link-card website" style="--i: 0;" data-en="Zzone.Tech Website" data-ckb="ماڵپەڕی ز زۆن.تەکنەلۆجیا">
                 <i class="fa-solid fa-globe" aria-hidden="true"></i>
                 <span class="link-text">Zzone.Tech Website</span>
                 <i class="fa-solid fa-arrow-right arrow" aria-hidden="true"></i>
@@ -1177,82 +1213,74 @@
         });
     </script>
 
-    <!-- Interactive Mouse Glow Script -->
+    <!-- PERFORMANCE: Only run heavy JS on Desktop (Hover supported devices) -->
     <script>
-        const cursorGlow = document.getElementById('cursor-glow');
-        let glowX = window.innerWidth / 2;
-        let glowY = window.innerHeight / 2;
-        let targetX = glowX;
-        let targetY = glowY;
+        const isDesktop = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
-        document.addEventListener('mousemove', (e) => {
-            targetX = e.clientX;
-            targetY = e.clientY;
-        });
+        if (isDesktop) {
+            // Interactive Mouse Glow Script
+            const cursorGlow = document.getElementById('cursor-glow');
+            let glowX = window.innerWidth / 2;
+            let glowY = window.innerHeight / 2;
+            let targetX = glowX;
+            let targetY = glowY;
 
-        function animateGlow() {
-            glowX += (targetX - glowX) * 0.1;
-            glowY += (targetY - glowY) * 0.1;
-            cursorGlow.style.transform = `translate(${glowX}px, ${glowY}px) translate(-50%, -50%)`;
-            requestAnimationFrame(animateGlow);
-        }
-        animateGlow();
+            document.addEventListener('mousemove', (e) => {
+                targetX = e.clientX;
+                targetY = e.clientY;
+            });
 
-        document.addEventListener('touchmove', (e) => {
-            if (e.touches.length > 0) {
-                targetX = e.touches[0].clientX;
-                targetY = e.touches[0].clientY;
+            function animateGlow() {
+                glowX += (targetX - glowX) * 0.1;
+                glowY += (targetY - glowY) * 0.1;
+                cursorGlow.style.transform = `translate(${glowX}px, ${glowY}px) translate(-50%, -50%)`;
+                requestAnimationFrame(animateGlow);
             }
-        });
+            animateGlow();
+
+            // 3D Tilt Effect Script
+            const cards = document.querySelectorAll('.link-card');
+            cards.forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+
+                    const rotateX = ((y - centerY) / centerY) * -8;
+                    const rotateY = ((x - centerX) / centerX) * 8;
+
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-6px) scale(1.02)`;
+                });
+
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = '';
+                });
+            });
+
+            // Magnetic Effect Script
+            const magnetics = document.querySelectorAll('.magnetic');
+            magnetics.forEach(mag => {
+                const parent = mag.parentElement;
+
+                parent.addEventListener('mousemove', (e) => {
+                    const rect = parent.getBoundingClientRect();
+                    const x = e.clientX - rect.left - rect.width / 2;
+                    const y = e.clientY - rect.top - rect.height / 2;
+
+                    mag.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px)`;
+                });
+
+                parent.addEventListener('mouseleave', () => {
+                    mag.style.transform = 'translate(0px, 0px)';
+                });
+            });
+        }
     </script>
 
-    <!-- 3D Tilt Effect Script -->
-    <script>
-        const cards = document.querySelectorAll('.link-card');
-
-        cards.forEach(card => {
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-
-                const rotateX = ((y - centerY) / centerY) * -8;
-                const rotateY = ((x - centerX) / centerX) * 8;
-
-                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-6px) scale(1.02)`;
-            });
-
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = '';
-            });
-        });
-    </script>
-
-    <!-- Magnetic Effect Script -->
-    <script>
-        const magnetics = document.querySelectorAll('.magnetic');
-
-        magnetics.forEach(mag => {
-            const parent = mag.parentElement;
-
-            parent.addEventListener('mousemove', (e) => {
-                const rect = parent.getBoundingClientRect();
-                const x = e.clientX - rect.left - rect.width / 2;
-                const y = e.clientY - rect.top - rect.height / 2;
-
-                mag.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px)`;
-            });
-
-            parent.addEventListener('mouseleave', () => {
-                mag.style.transform = 'translate(0px, 0px)';
-            });
-        });
-    </script>
-
-    <!-- Ripple Effect Script -->
+    <!-- Ripple Effect Script (Lightweight enough for mobile) -->
     <script>
         document.querySelectorAll('.link-card').forEach(card => {
             card.addEventListener('click', function(e) {
