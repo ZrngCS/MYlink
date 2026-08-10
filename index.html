@@ -264,6 +264,49 @@
             border-color: #00538C;
             color: #fff;
         }
+        /* Beautiful Language Toggle Button */
+        
+        .lang-btn {
+            background: linear-gradient(135deg, rgba(0, 83, 140, 0.2), rgba(112, 128, 144, 0.1));
+            border: 1px solid rgba(0, 191, 255, 0.3);
+            color: #d3e0ff;
+            font-weight: 600;
+            padding: 7px 14px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 83, 140, 0.1);
+        }
+        
+        .lang-btn i {
+            transition: transform 0.6s ease-in-out;
+        }
+        
+        .lang-btn:hover {
+            background: linear-gradient(135deg, rgba(0, 83, 140, 0.4), rgba(0, 191, 255, 0.2));
+            border-color: #00BFFF;
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(0, 191, 255, 0.3);
+            transform: translateY(-2px) scale(1.05);
+        }
+        
+        .lang-btn:hover i {
+            transform: rotate(360deg);
+        }
+        
+        .lang-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s ease;
+        }
+        
+        .lang-btn:hover::after {
+            left: 100%;
+        }
         /* Interactive Mouse Glow */
         
         #cursor-glow {
@@ -450,7 +493,6 @@
             line-height: 1.6;
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
             min-height: 34px;
-            /* Prevent layout shift during typing */
         }
         
         .cursor-blink {
@@ -687,7 +729,6 @@
         .cmd-input-wrapper i {
             color: #708090;
             margin-right: 12px;
-            /* RTL supported */
             font-size: 1.2rem;
         }
         
@@ -844,8 +885,8 @@
                 <button id="share-btn" class="action-btn" aria-label="Share Profile">
                     <i class="fa-solid fa-share-nodes"></i>
                 </button>
-                <button id="lang-toggle" class="action-btn">
-                    <i class="fa-solid fa-language"></i> کوردی
+                <button id="lang-toggle" class="action-btn lang-btn">
+                    <i class="fa-solid fa-globe"></i> کوردی
                 </button>
             </div>
         </div>
@@ -856,13 +897,13 @@
                 <img src="https://cdn.corenexis.com/f/JUOi555x1hV.jpg" alt="Profile Picture of Zrng Sarkan Ghafur" class="profile-img" width="180" height="240" decoding="async" fetchpriority="high">
             </div>
             <div class="greeting" id="greeting">Welcome</div>
-            <h1 class="name">Zrng Sarkan Ghafur</h1>
+            <h1 class="name" id="profile-name">Zrng Sarkan Ghafur</h1>
             <p class="bio" id="bio-container"><span id="bio"></span><span class="cursor-blink"></span></p>
         </header>
 
         <!-- Semantic nav for links -->
         <nav class="links" aria-label="Social and website links">
-            <a href="https://myweb05.netlify.app/" target="_blank" rel="noopener noreferrer" class="link-card website" style="--i: 0;" data-en="Zzone.Tech Website" data-ckb="ماڵپەڕی ز زۆن.تەکنەلۆجیا">
+            <a href="https://myweb05.netlify.app/" target="_blank" rel="noopener noreferrer" class="link-card website" style="--i: 0;" data-en="Zzone.Tech Website" data-ckb="ماڵپەڕی ز زۆن تەکنەلۆجیا">
                 <i class="fa-solid fa-globe" aria-hidden="true"></i>
                 <span class="link-text">Zzone.Tech Website</span>
                 <i class="fa-solid fa-arrow-right arrow" aria-hidden="true"></i>
@@ -908,7 +949,7 @@
 
         <!-- Semantic footer -->
         <footer class="footer">
-            &copy; <span id="year">2024</span> Zrng Sarkan Ghafur. All rights reserved.
+            &copy; <span id="year">2024</span> <span id="footer-text">Zrng Sarkan Ghafur. All rights reserved.</span>
         </footer>
     </main>
 
@@ -995,7 +1036,7 @@
                 } else {
                     clearInterval(typingInterval);
                 }
-            }, 50); // Speed of typing
+            }, 50);
         }
     </script>
 
@@ -1004,13 +1045,18 @@
         const langBtn = document.getElementById('lang-toggle');
         const linkTexts = document.querySelectorAll('.link-text');
         const arrows = document.querySelectorAll('.arrow');
-        let isKurdish = false; // Default is now English
+        const profileNameEl = document.getElementById('profile-name');
+        const footerTextEl = document.getElementById('footer-text');
+        let isKurdish = false;
 
         function setLanguage() {
             if (isKurdish) {
                 document.documentElement.lang = 'ckb';
                 document.documentElement.dir = 'rtl';
-                langBtn.innerHTML = '<i class="fa-solid fa-language"></i> EN';
+                document.title = 'زرنگ سەرکان غەفوور | بەستەرەکان';
+                langBtn.innerHTML = '<i class="fa-solid fa-globe"></i> EN';
+                profileNameEl.textContent = 'زرنگ سەرکان غەفوور';
+                footerTextEl.textContent = 'زرنگ سەرکان غەفوور. هەموو مافەکان پارێزراون.';
                 typeWriter('خوێندکاری زانستی کۆمپیوتەر لە زانکۆی سلێمانی');
                 linkTexts.forEach(el => el.textContent = el.parentElement.getAttribute('data-ckb'));
                 arrows.forEach(arrow => arrow.classList.replace('fa-arrow-right', 'fa-arrow-left'));
@@ -1018,14 +1064,17 @@
             } else {
                 document.documentElement.lang = 'en';
                 document.documentElement.dir = 'ltr';
-                langBtn.innerHTML = '<i class="fa-solid fa-language"></i> کوردی';
+                document.title = 'Zrng Sarkan Ghafur | Links';
+                langBtn.innerHTML = '<i class="fa-solid fa-globe"></i> کوردی';
+                profileNameEl.textContent = 'Zrng Sarkan Ghafur';
+                footerTextEl.textContent = 'Zrng Sarkan Ghafur. All rights reserved.';
                 typeWriter('Computer Science Student at University of Sulaimani');
                 linkTexts.forEach(el => el.textContent = el.parentElement.getAttribute('data-en'));
                 arrows.forEach(arrow => arrow.classList.replace('fa-arrow-left', 'fa-arrow-right'));
                 document.getElementById('cmd-input').placeholder = 'Search for links...';
             }
             updateClock();
-            renderCmdResults(document.getElementById('cmd-input').value); // Update search list if open
+            renderCmdResults(document.getElementById('cmd-input').value);
         }
 
         langBtn.addEventListener('click', () => {
@@ -1033,7 +1082,6 @@
             setLanguage();
         });
 
-        // Init typewriter on load (English by default)
         window.addEventListener('load', () => {
             setTimeout(() => typeWriter('Computer Science Student at University of Sulaimani'), 1000);
         });
@@ -1110,7 +1158,6 @@
                 if (navigator.share) {
                     await navigator.share(shareData);
                 } else {
-                    // Fallback for browsers that don't support Web Share API
                     await navigator.clipboard.writeText(window.location.href);
                     alert(isKurdish ? 'لینکی پەڕەکە کۆپی کرا!' : 'Profile link copied to clipboard!');
                 }
